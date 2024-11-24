@@ -20,19 +20,33 @@ export function UsersList() {
   }, []);
 
   return (
-    <div>
-      <h2>Lista Użytkowników</h2>
-      {error ? (
-        <p>{error}</p>
-      ) : (
-        <ul>
-          {users.map((user) => (
-            <li key={user.id}>
-              {user.id} - {user.username} ({user.email}) - {user.password} - {user.creation_date}
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="flex flex-col bg-slate-900 mt-10 pb-10">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-xl font-bold text-gray-800 text-center mb-4">
+          Admin user:
+        </h2>
+        {error ? (
+          <p className="text-red-500 text-center">{error}</p>
+        ) : (
+          <ul className="divide-y divide-gray-300">
+            {users
+              .filter((user) => user.id === 7)
+              .map((user) => (
+                <li
+                  key={user.id}
+                  className="py-2 px-3 bg-gray-100 rounded-lg mb-2 shadow-md"
+                >
+                  <p className="text-gray-800">
+                    <strong>Username:</strong> {user.username}
+                  </p>
+                  <p className="text-gray-800">
+                    <strong>Pass:</strong> admin
+                  </p>
+                </li>
+              ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
