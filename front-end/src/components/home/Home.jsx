@@ -5,7 +5,9 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="text-center p-6 max-w-md bg-white rounded-lg shadow-lg">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-4">Witaj w aplikacji</h1>
+        <h1 className="text-3xl font-semibold text-gray-800 mb-4">
+          Witaj w aplikacji
+        </h1>
         <p className="text-lg text-gray-600 mb-6">Wybierz opcję:</p>
 
         <div className="flex flex-col space-y-4">
@@ -16,6 +18,7 @@ const Home = () => {
           >
             Zaloguj się
           </Link>
+          <br />
 
           {/* Zarejestruj się */}
           <Link
