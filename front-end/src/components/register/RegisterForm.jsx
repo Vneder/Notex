@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext/AuthContext"; // Import kontekstu
 
 const RegisterForm = () => {
   const [username, setUsername] = useState("");
@@ -7,11 +8,21 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth(); // Sprawdzenie, czy użytkownik jest zalogowany
+
+  // Sprawdzamy, czy użytkownik jest zalogowany, i jeśli tak, przekierowujemy na dashboard
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, [isLoggedIn, navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,6 +37,7 @@ const RegisterForm = () => {
         setUsername("");
         setPassword("");
         setEmail("");
+        navigate("/login"); // Po rejestracji przekierowanie do logowania
       } else {
         setMessage(data.message || "Rejestracja nie powiodła się.");
       }

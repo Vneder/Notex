@@ -1,3 +1,24 @@
-2024-11-21
-10:10-
-TODO: Zrobić stronkę z notatkami, na niej dodać przyciski dodawania noatek
+TODO:
+
+1. Poprawić działanie logowanie i routing - Główna strona ma przede wszystkim być stroną z notatkami. 👌
+    - Przy wejściu sprawdzenie czy użytkownik jest zalogowany (cookie/webStorage)
+    - Jeśli jest to przejście do jego panelu z notatkami i możliwościami edycji, tworzenia itd
+    - Jeśli nie to aktualny stan, czyli pytanie czy zalogować czy zarejestrować
+2. Zabezpieczyć możliwości wejścia z linku np. http://localhost:5173/register niedostępny dla zalogowanych 👌
+
+4. Stworzyć całą stronę z główną funkcjonalnościa notatek, ich zapisywania, edytowania itd
+ Zrobić Backup bazy danych i wysłać ziomeczkom
+
+3. Skonstruować zapisywanie do bazy danych
+5. Sprawdzenie wstrzykiwania sql-a
+6. RESPONSYWNOŚĆ
+8. Wyszukiwarka notatek przy ich dużej ilości
+
+10. logowanie przez google?
+
+Personalizacja widoku:
+Możliwość zmiany wyglądu aplikacji (np. ciemny/jasny motyw).
+
+Skróty klawiaturowe:
+Dodanie skrótów klawiaturowych do najważniejszych akcji (np. Ctrl+S do zapisywania notatek).
+

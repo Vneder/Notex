@@ -1,21 +1,59 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./components/home/Home";
-// import Dashboard from "./components/dashboard/Dashboard";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./components/AuthContext/AuthContext";
+import {
+  ProtectedRoute,
+  PublicRoute,
+} from "./components/RouteGuards/RouteGuards";
 import LoginForm from "./components/login/LoginForm";
 import RegisterForm from "./components/register/RegisterForm";
-const App = () => {
+import Dashboard from "./components/dashboard/Dashboard";
+import Home from "./components/home/Home";
+
+function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/register" element={<RegisterForm />} />
-        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Publiczne strony dostępne tylko dla niezalogowanych */}
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Home />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginForm />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterForm />
+              </PublicRoute>
+            }
+          />
+
+          {/* Prywatne strony dostępne tylko dla zalogowanych */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-};
+}
 
 export default App;

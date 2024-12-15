@@ -1,7 +1,6 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { UsersList } from "../user_list/user_list";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext/AuthContext"; // Import kontekstu
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
@@ -9,26 +8,36 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
+  const { isLoggedIn, loading, login } = useAuth(); // Użycie stanu zalogowania z kontekstu
+
+  // Jeśli użytkownik jest już zalogowany, przekierowujemy na dashboard
+  useEffect(() => {
+    if (!loading && isLoggedIn) {
+      navigate("/dashboard");
+    }
+  }, [isLoggedIn, loading, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        login(data.user); // Zaloguj użytkownika
+        navigate("/dashboard"); // Przekierowanie na dashboard
         setMessage(`Witaj ${data.user.username}!`);
         setUsername("");
         setPassword("");
-        navigate("/");
       } else {
         setMessage(data.message || "Błąd logowania.");
       }
@@ -37,6 +46,11 @@ const LoginForm = () => {
       setMessage("Wystąpił problem z połączeniem z serwerem.");
     }
   };
+
+  // Jeśli dane są w trakcie ładowania, wyświetlamy komunikat
+  // if (loading) {
+  //   return <p>Loading...</p>;
+  // }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 pt-10">
@@ -78,7 +92,7 @@ const LoginForm = () => {
         </form>
 
         <h3 className="text-xl font-bold text-gray-800 text-center mb-6 mt-6">
-          Nie masz jeszcze konta?
+          Nie masz jeszcze konta?{" "}
         </h3>
 
         <Link
@@ -101,8 +115,6 @@ const LoginForm = () => {
           <p className="mt-4 text-red-500 text-center font-medium">{message}</p>
         )}
       </div>
-
-      <UsersList className="pb-10" />
     </div>
   );
 };
