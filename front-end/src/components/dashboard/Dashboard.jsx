@@ -5,11 +5,14 @@ import NoteForm from "./NoteForm";
 import NoteList from "./NoteList";
 import LogoutButton from "./LogoutButton";
 import { useAuth } from "../AuthContext/AuthContext"; // Import kontekstu
+import NoteSearch from "./NoteSearch";
 
 export default function Dashboard() {
   const [notes, setNotes] = useState([]);
-  const [currentNote, setCurrentNote] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [filteredNotes, setFilteredNotes] = useState([]); // Filtrowane notatki
+  const [currentNote, setCurrentNote] = useState(""); // Treść notatki
+  const [noteTitle, setNoteTitle] = useState(""); // Tytuł notatki
+  const [editingIndex, setEditingIndex] = useState(null); // Indeks edytowanej notatki
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -20,21 +23,43 @@ export default function Dashboard() {
       try {
         const response = await fetch("http://localhost:5000/api/auth/user", {
           method: "GET",
-          credentials: "include", // Ważne, aby ciasteczka były wysyłane
+          credentials: "include",
         });
 
         if (response.ok) {
           const data = await response.json();
-          setUser(data); // Zapisz dane użytkownika
+          setUser(data);
+          fetchNotes(); // Po pobraniu danych użytkownika pobierz notatki
         } else {
-          setMessage("Nie udało się pobrać danych użytkownika.");
-          console.log("Nie udało się pobrać danych użytkownika." + response);
-          navigate("/login"); // Przekierowanie na stronę logowania
+          navigate("/login");
         }
       } catch (error) {
-        setMessage("Wystąpił problem z połączeniem." + error);
+        console.error("Problem z pobraniem użytkownika", error);
       }
     };
+
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/notes", {
+          method: "GET",
+          credentials: "include",
+        });
+        if (!response.ok) {
+          console.error(
+            "Błąd odpowiedzi serwera:",
+            response.status,
+            response.statusText
+          );
+          return;
+        }
+        const data = await response.json();
+        setNotes(data);
+        setFilteredNotes(data);
+      } catch (error) {
+        console.error("Błąd podczas pobierania notatek:", error);
+      }
+    };
+    fetchNotes();
 
     fetchUserData();
   }, [navigate]);
@@ -43,58 +68,119 @@ export default function Dashboard() {
     return <p>Ładowanie danych...</p>;
   }
 
-  const handleAddNote = () => {
-    if (editingIndex === null) {
-      setNotes([...notes, currentNote]);
-    } else {
-      const updatedNotes = notes.map((note, index) =>
-        index === editingIndex ? currentNote : note
-      );
-      setNotes(updatedNotes);
-      setEditingIndex(null);
+  const handleAddNote = async () => {
+    if (!noteTitle || !currentNote) {
+      return alert("Tytuł i treść notatki są wymagane");
     }
+    try {
+      const response = await fetch("http://localhost:5000/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }, // Nagłówek JSON
+        credentials: "include",
+        body: JSON.stringify({ name: noteTitle, note_content: currentNote }), // Poprawne dane do wysłania
+      });
+
+      if (!response.ok) {
+        console.error(
+          "Błąd odpowiedzi serwera:",
+          response.status,
+          response.statusText
+        );
+        return;
+      }
+
+      const responseData = await response.json();
+      console.log("Odpowiedź z serwera:", responseData);
+      setNotes([responseData.note, ...notes]);
+    } catch (error) {
+      console.error("Błąd dodawania notatki:", error);
+    }
+    setNoteTitle("");
     setCurrentNote("");
   };
 
   const handleEditNote = (index) => {
-    setCurrentNote(notes[index]);
+    setNoteTitle(notes[index].name);
+    setCurrentNote(notes[index].note_content);
     setEditingIndex(index);
   };
 
-  const handleDeleteNote = (index) => {
-    setNotes(notes.filter((_, i) => i !== index));
+  const handleUpdateNote = async () => {
+    if (editingIndex === null) return;
+    const note = notes[editingIndex];
+    try {
+      await fetch(`http://localhost:5000/api/notes/${note.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name: noteTitle, note_content: currentNote }),
+      });
+      const updatedNotes = [...notes];
+      updatedNotes[editingIndex] = {
+        ...note,
+        name: noteTitle,
+        note_content: currentNote,
+      };
+      setNotes(updatedNotes);
+    } catch (error) {
+      console.error("Błąd aktualizacji notatki:", error);
+    }
+    setNoteTitle("");
+    setCurrentNote("");
+    setEditingIndex(null);
+  };
+
+  const handleDeleteNote = async (index) => {
+    const note = notes[index];
+    try {
+      await fetch(`http://localhost:5000/api/notes/${note.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      setNotes(notes.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Błąd usuwania notatki:", error);
+    }
   };
 
   const handleLogout = async () => {
     try {
-      await logout(); // Wywołanie logout z kontekstu
-      navigate("/login"); // Przekierowanie na stronę logowania
+      await logout();
+      navigate("/login");
     } catch (error) {
       setMessage("Błąd podczas wylogowywania: " + error);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-900 min-h-screen px-4 py-12">
-      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-10 text-center">
+    <div className="flex flex-col items-center justify-center bg-slate-900 min-h-screen px-6 py-16 overflow-hidden">
+      <div className="relative w-full max-w-4xl bg-gray-50 bg-opacity-55 backdrop-blur-md rounded-3xl shadow-2xl p-12 text-center">
+        {/* Dekoracyjny gradient */}
+        <div className="absolute inset-0 -z-10">
+          <div className="w-96 h-96 bg-gradient-to-br from-purple-500 via-blue-600 to-indigo-700 opacity-30 rounded-full blur-3xl absolute top-[-50%] left-[25%]"></div>
+          <div className="w-72 h-72 bg-gradient-to-bl from-pink-400 via-red-500 to-yellow-500 opacity-30 rounded-full blur-3xl absolute bottom-[-40%] right-[20%]"></div>
+          <div className="w-80 h-80 bg-gradient-to-tl from-green-400 via-teal-500 to-cyan-600 opacity-30 rounded-full blur-3xl absolute top-[20%] left-[-35%]"></div>
+          <div className="w-80 h-80 bg-gradient-to-tr from-orange-400 via-yellow-500 to-amber-600 opacity-30 rounded-full blur-3xl absolute bottom-[20%] right-[-35%]"></div>
+        </div>
         <Welcome username={user.username} />
-
-        <div className="space-y-5">
+        <div className="space-y-10 mt-6">
           <NoteForm
             currentNote={currentNote}
             setCurrentNote={setCurrentNote}
-            handleAddNote={handleAddNote}
+            noteTitle={noteTitle}
+            setNoteTitle={setNoteTitle}
+            handleAddNote={
+              editingIndex === null ? handleAddNote : handleUpdateNote
+            }
             editingIndex={editingIndex}
           />
-
           <NoteList
             notes={notes}
             handleEditNote={handleEditNote}
             handleDeleteNote={handleDeleteNote}
           />
-
-          <LogoutButton handleLogout={handleLogout} />
         </div>
+        <LogoutButton handleLogout={handleLogout} />
       </div>
     </div>
   );

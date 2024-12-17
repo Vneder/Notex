@@ -11,14 +11,9 @@ TODO:
 
 3. Skonstruować zapisywanie do bazy danych
 5. Sprawdzenie wstrzykiwania sql-a
+
+
 6. RESPONSYWNOŚĆ
-8. Wyszukiwarka notatek przy ich dużej ilości
 
-10. logowanie przez google?
 
-Personalizacja widoku:
-Możliwość zmiany wyglądu aplikacji (np. ciemny/jasny motyw).
-
-Skróty klawiaturowe:
-Dodanie skrótów klawiaturowych do najważniejszych akcji (np. Ctrl+S do zapisywania notatek).
-
+W momencie edycji wyłączyć przycisk usuwania notatki!

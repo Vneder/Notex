@@ -3,17 +3,28 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
+const noteRoutes = require('./routes/noteRoutes');
 const userController = require('./controllers/userController');
 const verifySession = require('./middlewares/authMiddleware');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST'], credentials: true }));
-app.use(express.json());
+app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST', 'PUT', 'DELETE'], credentials: true }));
+app.use(express.json()); // Middleware do parsowania JSON
 app.use(cookieParser());
 
-app.locals.sessions = {};  // Wstępna sesja w pamięci
+// Middleware do obsługi błędów JSON
+app.use((error, req, res, next) => {
+    if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
+        console.error('Błąd parsowania JSON:', error.message);
+        return res.status(400).json({ message: 'Niepoprawne dane JSON' });
+    }
+    next();
+});
+
+app.locals.sessions = {}; // Wstępna sesja w pamięci
 
 app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes); // Rejestracja tras notatek
 app.get('/api/data', verifySession, userController.getUsers);
 
 const PORT = process.env.PORT || 5000;
