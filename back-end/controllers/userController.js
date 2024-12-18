@@ -1,6 +1,5 @@
 const pool = require('../config/db');
 
-// Endpoint pobierający dane użytkowników
 const getUsers = async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM users');

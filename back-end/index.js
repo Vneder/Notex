@@ -9,10 +9,9 @@ const verifySession = require('./middlewares/authMiddleware');
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:5173', methods: ['GET', 'POST', 'PUT', 'DELETE'], credentials: true }));
-app.use(express.json()); // Middleware do parsowania JSON
+app.use(express.json());
 app.use(cookieParser());
 
-// Middleware do obsługi błędów JSON
 app.use((error, req, res, next) => {
     if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
         console.error('Błąd parsowania JSON:', error.message);
@@ -21,10 +20,10 @@ app.use((error, req, res, next) => {
     next();
 });
 
-app.locals.sessions = {}; // Wstępna sesja w pamięci
+app.locals.sessions = {};
 
 app.use('/api/auth', authRoutes);
-app.use('/api/notes', noteRoutes); // Rejestracja tras notatek
+app.use('/api/notes', noteRoutes);
 app.get('/api/data', verifySession, userController.getUsers);
 
 const PORT = process.env.PORT || 5000;

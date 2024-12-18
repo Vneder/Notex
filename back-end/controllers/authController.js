@@ -2,13 +2,11 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const { generateSessionId } = require('../utils.js/sessionUtils');
 
-// Endpoint logowania
 const login = async (req, res) => {
     const { username, password } = req.body;
     try {
         console.log('Dane logowania:', { username, password });
 
-        // Sprawdzenie użytkownika w bazie danych
         const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         const user = result.rows[0];
         if (!user) {
@@ -16,31 +14,26 @@ const login = async (req, res) => {
             return res.status(400).json({ message: 'Nieprawidłowa nazwa użytkownika lub hasło' });
         }
 
-        // Sprawdzenie poprawności hasła
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             console.log('Nieprawidłowe hasło dla użytkownika:', username);
             return res.status(400).json({ message: 'Nieprawidłowa nazwa użytkownika lub hasło' });
         }
 
-        // Generowanie unikalnego sessionId
         const sessionId = generateSessionId();
         console.log('Wygenerowano sessionId:', sessionId);
 
-        // Przechowywanie sesji w req.app.locals.sessions (lub innej bazie pamięci)
         req.app.locals.sessions[sessionId] = { userId: user.id, username: user.username };
         console.log('Sesja została zapisana w req.app.locals.sessions:', req.app.locals.sessions);
 
-        // Ustawianie ciasteczka
         res.cookie('sessionId', sessionId, {
-            httpOnly: true,   // Ciasteczko jest dostępne tylko przez HTTP, nie przez JavaScript
-            secure: process.env.NODE_ENV === 'production', // Tylko w HTTPS w produkcji
-            sameSite: 'Strict', // Wymaga, aby ciasteczko było wysyłane tylko na tej samej domenie
-            maxAge: 3600000 // Opcjonalnie: ustawienie czasu życia ciasteczka (np. 1 godzina)
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 3600000
         });
         console.log('Ciasteczko sessionId ustawione');
 
-        // Odpowiedź JSON z informacjami o użytkowniku
         res.json({
             message: 'Logowanie udane',
             user: { id: user.id, username: user.username, email: user.email }
@@ -51,7 +44,6 @@ const login = async (req, res) => {
     }
 };
 
-// Endpoint rejestracji
 const register = async (req, res) => {
     const { username, password, email } = req.body;
     if (!email || !password || !username) {
@@ -91,7 +83,6 @@ const register = async (req, res) => {
     }
 };
 
-// Endpoint wylogowania
 const logout = (req, res) => {
     const sessionId = req.cookies.sessionId;
     if (!sessionId || !req.app.locals.sessions[sessionId]) {

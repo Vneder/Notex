@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext/AuthContext"; // Import kontekstu
+import { useAuth } from "../AuthContext/AuthContext";
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
@@ -8,9 +8,8 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-  const { isLoggedIn, loading, login } = useAuth(); // Użycie stanu zalogowania z kontekstu
+  const { isLoggedIn, loading, login } = useAuth();
 
-  // Jeśli użytkownik jest już zalogowany, przekierowujemy na dashboard
   useEffect(() => {
     if (!loading && isLoggedIn) {
       navigate("/dashboard");
@@ -33,8 +32,8 @@ const LoginForm = () => {
       const data = await response.json();
 
       if (response.ok) {
-        login(data.user); // Zaloguj użytkownika
-        navigate("/dashboard"); // Przekierowanie na dashboard
+        login(data.user);
+        navigate("/dashboard");
         setMessage(`Witaj ${data.user.username}!`);
         setUsername("");
         setPassword("");
@@ -47,13 +46,8 @@ const LoginForm = () => {
     }
   };
 
-  // Jeśli dane są w trakcie ładowania, wyświetlamy komunikat
-  // if (loading) {
-  //   return <p>Loading...</p>;
-  // }
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 pt-10">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 pt-10 ">
       <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
           Logowanie

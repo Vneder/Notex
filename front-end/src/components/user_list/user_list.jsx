@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // Dodanie importu dla axios
+import axios from "axios";
 
 export function UsersList() {
   const [users, setUsers] = useState([]);

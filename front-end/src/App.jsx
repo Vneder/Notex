@@ -15,7 +15,6 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Publiczne strony dostępne tylko dla niezalogowanych */}
           <Route
             path="/"
             element={
@@ -40,8 +39,6 @@ function App() {
               </PublicRoute>
             }
           />
-
-          {/* Prywatne strony dostępne tylko dla zalogowanych */}
           <Route
             path="/dashboard"
             element={

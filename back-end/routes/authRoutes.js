@@ -8,7 +8,6 @@ router.post('/login', login);
 router.post('/register', register);
 router.post('/logout', logout);
 
-// Endpoint, który wymaga sesji
 router.get('/user', verifySession, (req, res) => {
     const { username, email } = req.user;
     res.json({

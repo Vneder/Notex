@@ -1,10 +1,8 @@
 const express = require('express');
 const pool = require('../config/db');
 const verifySession = require('../middlewares/authMiddleware');
-
 const router = express.Router();
 
-// Endpoint dodawania nowej notatki
 router.post('/', verifySession, async (req, res) => {
     const { name, note_content } = req.body;
     const ownerId = req.user.userId;
@@ -30,7 +28,6 @@ router.post('/', verifySession, async (req, res) => {
     }
 });
 
-// Endpoint pobierania aktywnych notatek użytkownika
 router.get('/', verifySession, async (req, res) => {
     const ownerId = req.user.userId;
 
@@ -47,7 +44,6 @@ router.get('/', verifySession, async (req, res) => {
     }
 });
 
-// Endpoint edycji notatki
 router.put('/:id', verifySession, async (req, res) => {
     const { id } = req.params;
     const { name, note_content } = req.body;
@@ -77,7 +73,6 @@ router.put('/:id', verifySession, async (req, res) => {
     }
 });
 
-// Endpoint usuwania (dezaktywowania) notatki
 router.delete('/:id', verifySession, async (req, res) => {
     const { id } = req.params;
     const ownerId = req.user.userId;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext/AuthContext"; // Import kontekstu
+import { useAuth } from "../AuthContext/AuthContext";
 
 const RegisterForm = () => {
   const [username, setUsername] = useState("");
@@ -9,9 +9,8 @@ const RegisterForm = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth(); // Sprawdzenie, czy użytkownik jest zalogowany
+  const { isLoggedIn } = useAuth();
 
-  // Sprawdzamy, czy użytkownik jest zalogowany, i jeśli tak, przekierowujemy na dashboard
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/dashboard");
@@ -37,7 +36,7 @@ const RegisterForm = () => {
         setUsername("");
         setPassword("");
         setEmail("");
-        navigate("/login"); // Po rejestracji przekierowanie do logowania
+        navigate("/login");
       } else {
         setMessage(data.message || "Rejestracja nie powiodła się.");
       }

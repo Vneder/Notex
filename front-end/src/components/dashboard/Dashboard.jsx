@@ -4,15 +4,13 @@ import Welcome from "./Welcome";
 import NoteForm from "./NoteForm";
 import NoteList from "./NoteList";
 import LogoutButton from "./LogoutButton";
-import { useAuth } from "../AuthContext/AuthContext"; // Import kontekstu
-import NoteSearch from "./NoteSearch";
+import { useAuth } from "../AuthContext/AuthContext";
 
 export default function Dashboard() {
   const [notes, setNotes] = useState([]);
-  const [filteredNotes, setFilteredNotes] = useState([]); // Filtrowane notatki
-  const [currentNote, setCurrentNote] = useState(""); // Treść notatki
-  const [noteTitle, setNoteTitle] = useState(""); // Tytuł notatki
-  const [editingIndex, setEditingIndex] = useState(null); // Indeks edytowanej notatki
+  const [currentNote, setCurrentNote] = useState("");
+  const [noteTitle, setNoteTitle] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
@@ -29,7 +27,7 @@ export default function Dashboard() {
         if (response.ok) {
           const data = await response.json();
           setUser(data);
-          fetchNotes(); // Po pobraniu danych użytkownika pobierz notatki
+          fetchNotes();
         } else {
           navigate("/login");
         }
@@ -54,7 +52,6 @@ export default function Dashboard() {
         }
         const data = await response.json();
         setNotes(data);
-        setFilteredNotes(data);
       } catch (error) {
         console.error("Błąd podczas pobierania notatek:", error);
       }
@@ -75,9 +72,9 @@ export default function Dashboard() {
     try {
       const response = await fetch("http://localhost:5000/api/notes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, // Nagłówek JSON
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name: noteTitle, note_content: currentNote }), // Poprawne dane do wysłania
+        body: JSON.stringify({ name: noteTitle, note_content: currentNote }),
       });
 
       if (!response.ok) {
@@ -106,15 +103,25 @@ export default function Dashboard() {
   };
 
   const handleUpdateNote = async () => {
-    if (editingIndex === null) return;
+    if (editingIndex === null) return; 
+  
     const note = notes[editingIndex];
+  
     try {
-      await fetch(`http://localhost:5000/api/notes/${note.id}`, {
+   
+      const response = await fetch(`http://localhost:5000/api/notes/${note.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ name: noteTitle, note_content: currentNote }),
       });
+  
+      if (!response.ok) {
+        console.error("Błąd odpowiedzi serwera:", response.status, response.statusText);
+        return;
+      }
+  
+   
       const updatedNotes = [...notes];
       updatedNotes[editingIndex] = {
         ...note,
@@ -122,13 +129,16 @@ export default function Dashboard() {
         note_content: currentNote,
       };
       setNotes(updatedNotes);
+  
+
+      setNoteTitle("");
+      setCurrentNote("");
+      setEditingIndex(null); 
     } catch (error) {
       console.error("Błąd aktualizacji notatki:", error);
     }
-    setNoteTitle("");
-    setCurrentNote("");
-    setEditingIndex(null);
   };
+  
 
   const handleDeleteNote = async (index) => {
     const note = notes[index];
@@ -153,17 +163,18 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-900 min-h-screen px-6 py-16 overflow-hidden">
-      <div className="relative w-full max-w-4xl bg-gray-50 bg-opacity-55 backdrop-blur-md rounded-3xl shadow-2xl p-12 text-center">
-        {/* Dekoracyjny gradient */}
+    <div className="flex flex-col items-center justify-center bg-slate-900 min-h-screen px-6 sm:px-8 md:px-12 py-16 overflow-hidden">
+      <div className="relative w-full max-w-4xl bg-gray-50 bg-opacity-55 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-10 md:p-12 text-center sm:text-left">
         <div className="absolute inset-0 -z-10">
-          <div className="w-96 h-96 bg-gradient-to-br from-purple-500 via-blue-600 to-indigo-700 opacity-30 rounded-full blur-3xl absolute top-[-50%] left-[25%]"></div>
-          <div className="w-72 h-72 bg-gradient-to-bl from-pink-400 via-red-500 to-yellow-500 opacity-30 rounded-full blur-3xl absolute bottom-[-40%] right-[20%]"></div>
-          <div className="w-80 h-80 bg-gradient-to-tl from-green-400 via-teal-500 to-cyan-600 opacity-30 rounded-full blur-3xl absolute top-[20%] left-[-35%]"></div>
-          <div className="w-80 h-80 bg-gradient-to-tr from-orange-400 via-yellow-500 to-amber-600 opacity-30 rounded-full blur-3xl absolute bottom-[20%] right-[-35%]"></div>
+          <div className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-gradient-to-br from-purple-500 via-blue-600 to-indigo-700 opacity-30 rounded-full blur-3xl absolute top-[-30%] left-[10%]"></div>
+          <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-72 md:h-72 bg-gradient-to-bl from-pink-400 via-red-500 to-yellow-500 opacity-30 rounded-full blur-3xl absolute bottom-[-20%] right-[10%]"></div>
+          <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-gradient-to-tl from-green-400 via-teal-500 to-cyan-600 opacity-30 rounded-full blur-3xl absolute top-[20%] left-[-20%]"></div>
+          <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-gradient-to-tr from-orange-400 via-yellow-500 to-amber-600 opacity-30 rounded-full blur-3xl absolute bottom-[10%] right-[-20%]"></div>
         </div>
+
         <Welcome username={user.username} />
-        <div className="space-y-10 mt-6">
+
+        <div className="space-y-6 mt-6 md:space-y-10">
           <NoteForm
             currentNote={currentNote}
             setCurrentNote={setCurrentNote}
@@ -174,14 +185,17 @@ export default function Dashboard() {
             }
             editingIndex={editingIndex}
           />
+
           <NoteList
             notes={notes}
             handleEditNote={handleEditNote}
             handleDeleteNote={handleDeleteNote}
           />
         </div>
+
         <LogoutButton handleLogout={handleLogout} />
       </div>
     </div>
   );
 }
+
